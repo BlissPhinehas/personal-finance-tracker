@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}💕 Finance Dashboard 💕{% endblock %}
+{% block title %}💕 Kawaii Dashboard 💕{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -17,7 +17,7 @@
                             style="background: linear-gradient(135deg, #b3e5d1, rgba(179, 229, 209, 0.3)); border-radius: 20px; margin: 10px;">
                             <div style="font-size: 2rem;">💰</div>
                             <h6 class="text-success fw-bold">Income Kitty</h6>
-                            <h3 class="money-positive">${{ "%.2f"|format(monthly_income) }}</h3>
+                            <h3 class="money-positive">${{ "%.2f"|format((monthly_income or 0)|float) }}</h3>
                             <small class="text-muted">Meow! 🐱</small>
                         </div>
                     </div>
@@ -26,21 +26,22 @@
                             style="background: linear-gradient(135deg, #ffccb3, rgba(255, 204, 179, 0.3)); border-radius: 20px; margin: 10px;">
                             <div style="font-size: 2rem;">🛍️</div>
                             <h6 class="text-danger fw-bold">Spending Spree</h6>
-                            <h3 class="money-negative">${{ "%.2f"|format(monthly_expenses) }}</h3>
+                            <h3 class="money-negative">${{ "%.2f"|format((monthly_expenses or 0)|float) }}</h3>
                             <small class="text-muted">Nya~ 😸</small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3"
                             style="background: linear-gradient(135deg, #d4a5ff, rgba(212, 165, 255, 0.3)); border-radius: 20px; margin: 10px;">
-                            <div style="font-size: 2rem;">{% if monthly_income - monthly_expenses >= 0 %}🎉{% else
-                                %}😿{% endif %}</div>
+                            <div style="font-size: 2rem;">{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0
+                                %}🎉{% else %}😿{% endif %}</div>
                             <h6 class="text-info fw-bold">Net Cuteness</h6>
-                            <h3 class="{% if monthly_income - monthly_expenses >= 0 %}money-positive{% else %}money-negative{% endif %}">
-                                ${{ "%.2f"|format(monthly_income - monthly_expenses) }}
+                            <h3
+                                class="{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0 %}money-positive{% else %}money-negative{% endif %}">
+                                ${{ "%.2f"|format(((monthly_income or 0) - (monthly_expenses or 0))|float) }}
                             </h3>
-                            <small class="text-muted">{% if monthly_income - monthly_expenses >= 0 %}Purr! 😻{% else
-                                %}Need treats! 🍪{% endif %}</small>
+                            <small class="text-muted">{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0
+                                %}Purr! 😻{% else %}Need treats! 🍪{% endif %}</small>
                         </div>
                     </div>
                 </div>
@@ -56,7 +57,7 @@
                 <div class="chart-container">
                     <canvas id="categoryChart"></canvas>
                 </div>
-                <div class="text-center mt-3">
+                <div class="text-center mt-3" id="chartMessage" style="display: none;">
                     <small class="text-muted">Where did all my money go? 😅💸</small>
                 </div>
             </div>
@@ -73,21 +74,27 @@
                 {% if recent_transactions %}
                 {% for transaction in recent_transactions %}
                 <div class="transaction-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div style="flex: 1;">
                             <div class="fw-bold" style="color: #666;">
-                                {% if transaction[5] == 'income' %}💰{% else %}🛍️{% endif %}
-                                {{ transaction[2][:20] }}{% if transaction[2]|length > 20 %}...{% endif %}
+                                {% if transaction[6] == 'income' %}💰{% else %}🛍️{% endif %}
+                                {{ transaction[3][:25] }}{% if transaction[3]|length > 25 %}...{% endif %}
                             </div>
                             <small class="text-muted">
-                                📅 {{ transaction[1] }} • 🏷️ {{ transaction[4] }}
+                                📅 {{ transaction[2] }} • 🏷️ {{ transaction[5] }}
                             </small>
                         </div>
-                        <div class="text-end">
-                            <div class="{{ 'money-positive' if transaction[5] == 'income' else 'money-negative' }}">
-                                {{ '+' if transaction[5] == 'income' else '-' }}${{ "%.2f"|format(transaction[3]) }}
+                        <div class="text-end" style="min-width: 100px;">
+                            <div class="{{ 'money-positive' if transaction[6] == 'income' else 'money-negative' }}">
+                                {{ '+' if transaction[6] == 'income' else '-' }}${{ "%.2f"|format(transaction[4]|float)
+                                }}
                             </div>
-                            <small>{{ '📈' if transaction[5] == 'income' else '📉' }}</small>
+                            <small>{{ '📈' if transaction[6] == 'income' else '📉' }}</small>
+                            <br>
+                            <button class="btn btn-outline-danger btn-sm mt-1 delete-btn" data-id="{{ transaction[0] }}"
+                                data-name="{{ transaction[3][:20] }}" style="font-size: 0.7rem; padding: 2px 6px;">
+                                🗑️
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -111,16 +118,25 @@
                 <h5>🌟 Quick Actions</h5>
             </div>
             <div class="card-body text-center">
-                <div class="d-grid gap-3">
+                <div class="d-grid gap-2">
                     <a href="/add_transaction" class="btn btn-primary">
                         💫 Add Transaction
                     </a>
-                    <button class="btn btn-secondary" onclick="addSampleData()">
-                        🎲 Add Sample Data
-                    </button>
                     <div class="mt-3">
                         <small class="text-muted">Made with 💕 and lots of ☕</small>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Income vs Savings Trends -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>📈 Financial Trends</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="trendsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -128,6 +144,26 @@
 </div>
 
 <script>
+    // Add event listeners for delete buttons
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const transactionId = this.getAttribute('data-id');
+                const transactionName = this.getAttribute('data-name');
+
+                if (confirm(`Are you sure you want to delete "${transactionName}"? This action cannot be undone! 😿`)) {
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/delete_transaction/${transactionId}`;
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
     // Cute pastel colors for charts
     const cuteColors = [
         '#ff9dbf', '#d4a5ff', '#b3e5d1', '#ffccb3',
@@ -137,7 +173,23 @@
     fetch('/api/chart_data')
         .then(response => response.json())
         .then(data => {
+            console.log('Chart data received:', data);
+
             const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            // Check if we have spending data
+            if (!data.category_data || Object.keys(data.category_data).length === 0) {
+                // Show "No data" message in chart area
+                ctx.font = '16px Nunito';
+                ctx.fillStyle = '#ff9dbf';
+                ctx.textAlign = 'center';
+                ctx.fillText('Add some expenses to see your spending rainbow! 🌈', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            // Show the message when we have data
+            document.getElementById('chartMessage').style.display = 'block';
+
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -172,7 +224,12 @@
                             titleColor: '#fff',
                             bodyColor: '#fff',
                             cornerRadius: 15,
-                            displayColors: true
+                            displayColors: true,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label + ': ' + context.parsed.toFixed(2);
+                                }
+                            }
                         }
                     },
                     cutout: '60%',
@@ -182,19 +239,66 @@
                     }
                 }
             });
+
+            // Create trends chart
+            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+            
+            if (!data.monthly_trends || data.monthly_trends.length === 0) {
+                trendsCtx.font = '14px Nunito';
+                trendsCtx.fillStyle = '#ff9dbf';
+                trendsCtx.textAlign = 'center';
+                trendsCtx.fillText('Add transactions to see trends! 📊', trendsCtx.canvas.width / 2, trendsCtx.canvas.height / 2);
+                return;
+            }
+            
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: data.monthly_trends.map(item => item[0]),
+                    datasets: [{
+                        label: 'Income',
+                        data: data.monthly_trends.map(item => item[1]),
+                        borderColor: '#1a5d1a',
+                        backgroundColor: 'rgba(26, 93, 26, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }, {
+                        label: 'Expenses',
+                        data: data.monthly_trends.map(item => item[2]),
+                        borderColor: '#b91c1c',
+                        backgroundColor: 'rgba(185, 28, 28, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            ctx.font = '14px Nunito';
+            ctx.fillStyle = '#ff9dbf';
+            ctx.textAlign = 'center';
+            ctx.fillText('Chart loading error 😿', ctx.canvas.width / 2, ctx.canvas.height / 2);
         });
-
-    // Add sample cute data function
-    function addSampleData() {
-        const sampleTransactions = [
-            { desc: 'Starbucks Coffee ☕', amount: 5.50, type: 'expense', cat: 'Food' },
-            { desc: 'Cute Dress Shopping 👗', amount: 45.00, type: 'expense', cat: 'Shopping' },
-            { desc: 'Netflix Subscription 📺', amount: 15.99, type: 'expense', cat: 'Entertainment' },
-            { desc: 'Freelance Work 💻', amount: 200.00, type: 'income', cat: 'Income' },
-            { desc: 'Cat Food 🐱', amount: 12.99, type: 'expense', cat: 'Other' }
-        ];
-
-        alert('🎉 Sample data feature coming soon! For now, add transactions manually! 💕');
-    }
 </script>
 {% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}🌸 Join Kawaii Finance 🌸{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center" style="margin-top: 30px;">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <h5>💫 Join Our Cute Community! 💫</h5>
+                <div style="font-size: 2.5rem; margin: 15px 0;">
+                    <span class="bounce">🌈</span>
+                    <span class="bounce" style="animation-delay: 0.2s;">✨</span>
+                    <span class="bounce" style="animation-delay: 0.4s;">🎀</span>
+                </div>
+                <p class="text-white mb-0">Let's start your money journey! 🚀</p>
+            </div>
+            <div class="card-body" style="padding: 2.5rem;">
+                <form method="POST" id="registerForm">
+                    <div class="mb-4">
+                        <label for="username" class="form-label fw-bold">🎭 Choose Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                            value="{{ request.form.username if request.form else '' }}"
+                            placeholder="Something cute like 'MoneyKitty'..." required minlength="3">
+                        <div class="form-text">Make it memorable and cute! 💕</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-bold">🔐 Create Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Strong but easy to remember..." required minlength="6">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="form-text">At least 6 characters, keep it safe! 🛡️</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label fw-bold">✅ Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                placeholder="Type it again..." required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="form-text">Double-check for safety! 🔍</div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary"
+                            style="padding: 15px 40px; font-size: 1.1rem; width: 100%;">
+                            🎉 Create My Cute Account!
+                        </button>
+                    </div>
+                </form>
+
+                <hr style="margin: 2rem 0; border-color: rgba(255, 157, 191, 0.3);">
+
+                <div class="text-center">
+                    <p class="text-muted">Already have an account? 💭</p>
+                    <a href="/login" class="btn btn-secondary" style="padding: 12px 30px;">
+                        🏠 Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cute welcome card -->
+        <div class="card mt-4">
+            <div class="card-body text-center"
+                style="background: linear-gradient(135deg, #b3e5d1, rgba(179, 229, 209, 0.3));">
+                <div style="font-size: 1.5rem;">🎁</div>
+                <p class="mb-0 fw-bold" style="color: #2d5a3d;">
+                    Free forever! No hidden fees!
+                </p>
+                <small class="text-muted">Just cute finance tracking! 🌸📊</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const password = document.getElementById('password');
+        const button = this;
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            button.textContent = '🙈';
+        } else {
+            password.type = 'password';
+            button.textContent = '👁️';
+        }
+    });
+
+    // Toggle confirm password visibility
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function () {
+        const confirmPassword = document.getElementById('confirm_password');
+        const button = this;
+
+        if (confirmPassword.type === 'password') {
+            confirmPassword.type = 'text';
+            button.textContent = '🙈';
+        } else {
+            confirmPassword.type = 'password';
+            button.textContent = '👁️';
+        }
+    });
+
+    // Password confirmation validation
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('🙈 Passwords don\'t match! Please try again!');
+            return;
+        }
+
+        // Success sparkles
+        for (let i = 0; i < 12; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = Math.random() > 0.5 ? '🎉' : '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.fontSize = '1.5rem';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '9999';
+                sparkle.style.animation = 'float-heart 3s ease-out forwards';
+                document.body.appendChild(sparkle);
+
+                setTimeout(() => sparkle.remove(), 3000);
+            }, i * 80);
+        }
+    });
+</script>
+{% endblock %}

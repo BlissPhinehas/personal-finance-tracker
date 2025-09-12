@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}💕 Login to Kawaii Finance 💕{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center" style="margin-top: 50px;">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <h5>🌸 Welcome Back! 🌸</h5>
+                <div style="font-size: 3rem; margin: 15px 0;">
+                    <span class="bounce">💕</span>
+                    <span class="bounce" style="animation-delay: 0.2s;">😻</span>
+                    <span class="bounce" style="animation-delay: 0.4s;">💕</span>
+                </div>
+                <p class="text-white mb-0">Let's manage your money cutely! ✨</p>
+            </div>
+            <div class="card-body" style="padding: 2.5rem;">
+                <form method="POST" id="loginForm">
+                    <div class="mb-4">
+                        <label for="username" class="form-label fw-bold">👤 Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                            value="{{ request.form.username if request.form else '' }}"
+                            placeholder="Your cute username..." required>
+                        <div class="form-text">What should we call you? 💭</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-bold">🔐 Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Super secret password..." required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="form-text">Shh... keep it safe! 🤫</div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary"
+                            style="padding: 15px 40px; font-size: 1.1rem; width: 100%;">
+                            ✨ Enter My Finance World!
+                        </button>
+                    </div>
+                </form>
+
+                <hr style="margin: 2rem 0; border-color: rgba(255, 157, 191, 0.3);">
+
+                <div class="text-center">
+                    <p class="text-muted">New to our cute world? 🌸</p>
+                    <a href="/register" class="btn btn-secondary" style="padding: 12px 30px;">
+                        🎀 Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cute motivational card -->
+        <div class="card mt-4">
+            <div class="card-body text-center"
+                style="background: linear-gradient(135deg, #fff0f5, rgba(255, 240, 245, 0.3));">
+                <div style="font-size: 1.5rem;">💰</div>
+                <p class="mb-0 fw-bold" style="color: #ff9dbf;">
+                    Your financial journey awaits!
+                </p>
+                <small class="text-muted">Track, save, and grow your money cutely! 🌱✨</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        animation: wiggle 0.5s ease-in-out;
+        box-shadow: 0 0 20px rgba(255, 157, 191, 0.4);
+    }
+
+    @keyframes wiggle {
+
+        0%,
+        7% {
+            transform: rotateZ(0);
+        }
+
+        15% {
+            transform: rotateZ(-2deg);
+        }
+
+        20% {
+            transform: rotateZ(1deg);
+        }
+
+        25% {
+            transform: rotateZ(-1deg);
+        }
+
+        30% {
+            transform: rotateZ(0.5deg);
+        }
+
+        35% {
+            transform: rotateZ(-0.5deg);
+        }
+
+        40%,
+        100% {
+            transform: rotateZ(0);
+        }
+    }
+</style>
+
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const password = document.getElementById('password');
+        const button = this;
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            button.textContent = '🙈';
+        } else {
+            password.type = 'password';
+            button.textContent = '👁️';
+        }
+    });
+
+    // Add sparkle effect on form submission
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.fontSize = '1.2rem';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '9999';
+                sparkle.style.animation = 'float-heart 2s ease-out forwards';
+                document.body.appendChild(sparkle);
+
+                setTimeout(() => sparkle.remove(), 2000);
+            }, i * 100);
+        }
+    });
+</script>
+{% endblock %}

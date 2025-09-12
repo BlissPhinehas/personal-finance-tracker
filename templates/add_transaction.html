@@ -18,7 +18,7 @@
                 <form method="POST" id="transactionForm">
                     <div class="mb-4">
                         <label for="date" class="form-label fw-bold">📅 When did this happen?</label>
-                        <input type="date" class="form-control" id="date" name="date" required>
+                        <input type="date" class="form-control" id="date" name="date" required max="">
                         <div class="form-text">Pick your special day! ✨</div>
                     </div>
 
@@ -60,7 +60,10 @@
                             <option value="Bills">📋 Boring Bills</option>
                             <option value="Entertainment">🎬 Fun Times</option>
                             <option value="Healthcare">🏥 Health & Beauty</option>
-                            <option value="Income">💎 Money Earned</option>
+                            <option value="Education">📚 Education & Learning</option>
+                            <option value="Salary">💰 Salary & Wages</option>
+                            <option value="Investment">📈 Investments</option>
+                            <option value="Savings">🏦 Savings</option>
                             <option value="Other">✨ Something Else</option>
                         </select>
                         <div class="form-text">Where does this fit? 🗂️</div>
@@ -81,6 +84,30 @@
                     </div>
                 </form>
             </div>
+        </div>
+
+        <!-- Recurring Transaction Options -->
+        <div class="mb-4">
+            <div class="form-check" style="background: rgba(255, 157, 191, 0.1); padding: 15px; border-radius: 15px;">
+                <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring"
+                    onchange="toggleRecurring()">
+                <label class="form-check-label fw-bold" for="is_recurring">
+                    🔄 Make this recurring?
+                </label>
+                <div class="form-text">For things like salary, rent, subscriptions! 💡</div>
+            </div>
+        </div>
+        
+        <div class="mb-4" id="recurring_options" style="display: none;">
+            <label for="recurring_frequency" class="form-label fw-bold">🗓️ How often?</label>
+            <select class="form-select" id="recurring_frequency" name="recurring_frequency">
+                <option value="">Choose frequency...</option>
+                <option value="weekly">📅 Weekly</option>
+                <option value="monthly">🗓️ Monthly</option>
+                <option value="quarterly">📆 Every 3 Months</option>
+                <option value="yearly">🎂 Yearly</option>
+            </select>
+            <div class="form-text">We'll remember this pattern! 🧠✨</div>
         </div>
 
         <!-- Cute motivational card -->
@@ -184,8 +211,25 @@
         }
     }
 
-    // Add floating hearts on form submission
-    document.getElementById('transactionForm').addEventListener('submit', function (e) {
+    function toggleRecurring() {
+            const checkbox = document.getElementById('is_recurring');
+            const options = document.getElementById('recurring_options');
+            const frequency = document.getElementById('recurring_frequency');
+
+            if (checkbox.checked) {
+                options.style.display = 'block';
+                frequency.required = true;
+            } else {
+                options.style.display = 'none';
+                frequency.required = false;
+                frequency.value = '';
+            }
+        }
+
+    // Set today's date as default and max date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('date').setAttribute('max', today);
         // Create floating hearts
         for (let i = 0; i < 10; i++) {
             setTimeout(() => {
@@ -203,7 +247,6 @@
                 setTimeout(() => heart.remove(), 3000);
             }, i * 100);
         }
-    });
 
     // Add sparkle effect to form fields on focus
     document.querySelectorAll('.form-control, .form-select').forEach(field => {
