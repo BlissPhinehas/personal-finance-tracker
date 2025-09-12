@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}💕 Finance Dashboard 💕{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Cute Monthly Overview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5>🌈 Monthly Money Magic ✨</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="p-3"
+                            style="background: linear-gradient(135deg, #b3e5d1, rgba(179, 229, 209, 0.3)); border-radius: 20px; margin: 10px;">
+                            <div style="font-size: 2rem;">💰</div>
+                            <h6 class="text-success fw-bold">Income Kitty</h6>
+                            <h3 class="money-positive">${{ "%.2f"|format(monthly_income) }}</h3>
+                            <small class="text-muted">Meow! 🐱</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3"
+                            style="background: linear-gradient(135deg, #ffccb3, rgba(255, 204, 179, 0.3)); border-radius: 20px; margin: 10px;">
+                            <div style="font-size: 2rem;">🛍️</div>
+                            <h6 class="text-danger fw-bold">Spending Spree</h6>
+                            <h3 class="money-negative">${{ "%.2f"|format(monthly_expenses) }}</h3>
+                            <small class="text-muted">Nya~ 😸</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3"
+                            style="background: linear-gradient(135deg, #d4a5ff, rgba(212, 165, 255, 0.3)); border-radius: 20px; margin: 10px;">
+                            <div style="font-size: 2rem;">{% if monthly_income - monthly_expenses >= 0 %}🎉{% else
+                                %}😿{% endif %}</div>
+                            <h6 class="text-info fw-bold">Net Cuteness</h6>
+                            <h3 class="{% if monthly_income - monthly_expenses >= 0 %}money-positive{% else %}money-negative{% endif %}">
+                                ${{ "%.2f"|format(monthly_income - monthly_expenses) }}
+                            </h3>
+                            <small class="text-muted">{% if monthly_income - monthly_expenses >= 0 %}Purr! 😻{% else
+                                %}Need treats! 🍪{% endif %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cute Spending Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h5>🌸 Spending Rainbow 🌈</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Where did all my money go? 😅💸</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Cute Recent Transactions -->
+        <div class="card">
+            <div class="card-header">
+                <h5>🎀 Recent Money Adventures</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                {% for transaction in recent_transactions %}
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold" style="color: #666;">
+                                {% if transaction[5] == 'income' %}💰{% else %}🛍️{% endif %}
+                                {{ transaction[2][:20] }}{% if transaction[2]|length > 20 %}...{% endif %}
+                            </div>
+                            <small class="text-muted">
+                                📅 {{ transaction[1] }} • 🏷️ {{ transaction[4] }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="{{ 'money-positive' if transaction[5] == 'income' else 'money-negative' }}">
+                                {{ '+' if transaction[5] == 'income' else '-' }}${{ "%.2f"|format(transaction[3]) }}
+                            </div>
+                            <small>{{ '📈' if transaction[5] == 'income' else '📉' }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center p-4"
+                    style="background: linear-gradient(135deg, #fff0f5, rgba(255, 240, 245, 0.5)); border-radius: 15px;">
+                    <div style="font-size: 3rem;">😿</div>
+                    <p class="text-muted fw-bold">No money adventures yet!</p>
+                    <a href="/add_transaction" class="btn btn-primary">
+                        ✨ Start Your Journey!
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cute Action Buttons -->
+        <div class="card">
+            <div class="card-header">
+                <h5>🌟 Quick Actions</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-grid gap-3">
+                    <a href="/add_transaction" class="btn btn-primary">
+                        💫 Add Transaction
+                    </a>
+                    <button class="btn btn-secondary" onclick="addSampleData()">
+                        🎲 Add Sample Data
+                    </button>
+                    <div class="mt-3">
+                        <small class="text-muted">Made with 💕 and lots of ☕</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Cute pastel colors for charts
+    const cuteColors = [
+        '#ff9dbf', '#d4a5ff', '#b3e5d1', '#ffccb3',
+        '#ffd1dc', '#e6ccff', '#ccf2e6', '#ffe6d9'
+    ];
+
+    fetch('/api/chart_data')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.category_data),
+                    datasets: [{
+                        data: Object.values(data.category_data),
+                        backgroundColor: cuteColors,
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverBorderWidth: 5,
+                        hoverBorderColor: '#ff9dbf'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Nunito',
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 157, 191, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            cornerRadius: 15,
+                            displayColors: true
+                        }
+                    },
+                    cutout: '60%',
+                    animation: {
+                        animateRotate: true,
+                        duration: 2000
+                    }
+                }
+            });
+        });
+
+    // Add sample cute data function
+    function addSampleData() {
+        const sampleTransactions = [
+            { desc: 'Starbucks Coffee ☕', amount: 5.50, type: 'expense', cat: 'Food' },
+            { desc: 'Cute Dress Shopping 👗', amount: 45.00, type: 'expense', cat: 'Shopping' },
+            { desc: 'Netflix Subscription 📺', amount: 15.99, type: 'expense', cat: 'Entertainment' },
+            { desc: 'Freelance Work 💻', amount: 200.00, type: 'income', cat: 'Income' },
+            { desc: 'Cat Food 🐱', amount: 12.99, type: 'expense', cat: 'Other' }
+        ];
+
+        alert('🎉 Sample data feature coming soon! For now, add transactions manually! 💕');
+    }
+</script>
+{% endblock %}
