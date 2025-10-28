@@ -1,6 +1,4 @@
-Got it 👍 Here’s a **cleaned-up, more concise** version of your README that removes repetition while keeping everything professional, readable, and portfolio-ready:
 
----
 
 # 🌸 Personal Finance Tracker 💕
 
