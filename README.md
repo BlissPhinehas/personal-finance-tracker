@@ -1,5 +1,7 @@
 # 🌸 Personal Finance Tracker 💕
 
+- **Live Demo**: [Kawaii Finance Tracker](https://web-production-892b.up.railway.app/)
+  
 A cute and interactive web application to track expenses, budgets, and savings goals with beautiful charts, user authentication, and automated categorization.
 
 ## ✨ Features
