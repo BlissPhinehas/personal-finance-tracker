@@ -61,7 +61,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Visit [http://127.0.0.1:5000](http://127.0.0.1:5000)
+Visit [http://127.0.0.1:5000]([APP LINK](https://web-production-892b.up.railway.app/login))
 
 ---
 
