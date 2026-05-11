@@ -1,148 +1,181 @@
 {% extends "base.html" %}
 
-{% block title %}💕 Login to Kawaii Finance 💕{% endblock %}
+{% block title %}Login - FinanceFlow{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center" style="margin-top: 50px;">
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-header text-center">
-                <h5>🌸 Welcome Back! 🌸</h5>
-                <div style="font-size: 3rem; margin: 15px 0;">
-                    <span class="bounce">💕</span>
-                    <span class="bounce" style="animation-delay: 0.2s;">😻</span>
-                    <span class="bounce" style="animation-delay: 0.4s;">💕</span>
-                </div>
-                <p class="text-white mb-0">Let's manage your money cutely! ✨</p>
-            </div>
-            <div class="card-body" style="padding: 2.5rem;">
-                <form method="POST" id="loginForm">
-                    <div class="mb-4">
-                        <label for="username" class="form-label fw-bold">👤 Username</label>
-                        <input type="text" class="form-control" id="username" name="username"
-                            value="{{ request.form.username if request.form else '' }}"
-                            placeholder="Your cute username..." required>
-                        <div class="form-text">What should we call you? 💭</div>
-                    </div>
+<style>
+    .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 8rem);
+    }
 
-                    <div class="mb-4">
-                        <label for="password" class="form-label fw-bold">🔐 Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Super secret password..." required>
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                👁️
-                            </button>
-                        </div>
-                        <div class="form-text">Shh... keep it safe! 🤫</div>
-                    </div>
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+        border: 1px solid var(--border-color);
+    }
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary"
-                            style="padding: 15px 40px; font-size: 1.1rem; width: 100%;">
-                            ✨ Enter My Finance World!
-                        </button>
-                    </div>
-                </form>
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
 
-                <hr style="margin: 2rem 0; border-color: rgba(255, 157, 191, 0.3);">
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 
-                <div class="text-center">
-                    <p class="text-muted">New to our cute world? 🌸</p>
-                    <a href="/register" class="btn btn-secondary" style="padding: 12px 30px;">
-                        🎀 Create Account
-                    </a>
-                </div>
-            </div>
+    .auth-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(77, 124, 254, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--accent-blue), #6b8eff);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(77, 124, 254, 0.3);
+    }
+
+    .auth-divider {
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    .auth-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--text-secondary);
+    }
+
+    .auth-link a {
+        color: var(--accent-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-link a:hover {
+        text-decoration: underline;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to manage your finances</p>
         </div>
 
-        <!-- Cute motivational card -->
-        <div class="card mt-4">
-            <div class="card-body text-center"
-                style="background: linear-gradient(135deg, #fff0f5, rgba(255, 240, 245, 0.3));">
-                <div style="font-size: 1.5rem;">💰</div>
-                <p class="mb-0 fw-bold" style="color: #ff9dbf;">
-                    Your financial journey awaits!
-                </p>
-                <small class="text-muted">Track, save, and grow your money cutely! 🌱✨</small>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-input" id="username" name="username"
+                    value="{{ request.form.username if request.form else '' }}" placeholder="Enter your username"
+                    required>
             </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" class="form-input" id="password" name="password"
+                        placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Sign In</button>
+        </form>
+
+        <div class="auth-link">
+            Don't have an account? <a href="/register">Create one</a>
         </div>
     </div>
 </div>
 
-<style>
-    .form-control:focus {
-        animation: wiggle 0.5s ease-in-out;
-        box-shadow: 0 0 20px rgba(255, 157, 191, 0.4);
-    }
-
-    @keyframes wiggle {
-
-        0%,
-        7% {
-            transform: rotateZ(0);
-        }
-
-        15% {
-            transform: rotateZ(-2deg);
-        }
-
-        20% {
-            transform: rotateZ(1deg);
-        }
-
-        25% {
-            transform: rotateZ(-1deg);
-        }
-
-        30% {
-            transform: rotateZ(0.5deg);
-        }
-
-        35% {
-            transform: rotateZ(-0.5deg);
-        }
-
-        40%,
-        100% {
-            transform: rotateZ(0);
-        }
-    }
-</style>
-
 <script>
-    // Toggle password visibility
-    document.getElementById('togglePassword').addEventListener('click', function () {
-        const password = document.getElementById('password');
-        const button = this;
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = event.target;
 
-        if (password.type === 'password') {
-            password.type = 'text';
-            button.textContent = '🙈';
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleBtn.textContent = '🙈';
         } else {
-            password.type = 'password';
-            button.textContent = '👁️';
+            passwordInput.type = 'password';
+            toggleBtn.textContent = '👁️';
         }
-    });
-
-    // Add sparkle effect on form submission
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        for (let i = 0; i < 8; i++) {
-            setTimeout(() => {
-                const sparkle = document.createElement('div');
-                sparkle.innerHTML = '✨';
-                sparkle.style.position = 'fixed';
-                sparkle.style.left = Math.random() * window.innerWidth + 'px';
-                sparkle.style.top = Math.random() * window.innerHeight + 'px';
-                sparkle.style.fontSize = '1.2rem';
-                sparkle.style.pointerEvents = 'none';
-                sparkle.style.zIndex = '9999';
-                sparkle.style.animation = 'float-heart 2s ease-out forwards';
-                document.body.appendChild(sparkle);
-
-                setTimeout(() => sparkle.remove(), 2000);
-            }, i * 100);
-        }
-    });
+    }
 </script>
 {% endblock %}

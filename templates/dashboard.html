@@ -1,162 +1,443 @@
 {% extends "base.html" %}
 
-{% block title %}💕 Kawaii Dashboard 💕{% endblock %}
+{% block title %}Dashboard - FinanceFlow{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <!-- Cute Monthly Overview Card -->
-        <div class="card">
-            <div class="card-header">
-                <h5>🌈 Monthly Money Magic ✨</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="p-3"
-                            style="background: linear-gradient(135deg, #b3e5d1, rgba(179, 229, 209, 0.3)); border-radius: 20px; margin: 10px;">
-                            <div style="font-size: 2rem;">💰</div>
-                            <h6 class="text-success fw-bold">Income Kitty</h6>
-                            <h3 class="money-positive">${{ "%.2f"|format((monthly_income or 0)|float) }}</h3>
-                            <small class="text-muted">Meow! 🐱</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3"
-                            style="background: linear-gradient(135deg, #ffccb3, rgba(255, 204, 179, 0.3)); border-radius: 20px; margin: 10px;">
-                            <div style="font-size: 2rem;">🛍️</div>
-                            <h6 class="text-danger fw-bold">Spending Spree</h6>
-                            <h3 class="money-negative">${{ "%.2f"|format((monthly_expenses or 0)|float) }}</h3>
-                            <small class="text-muted">Nya~ 😸</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3"
-                            style="background: linear-gradient(135deg, #d4a5ff, rgba(212, 165, 255, 0.3)); border-radius: 20px; margin: 10px;">
-                            <div style="font-size: 2rem;">{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0
-                                %}🎉{% else %}😿{% endif %}</div>
-                            <h6 class="text-info fw-bold">Net Cuteness</h6>
-                            <h3
-                                class="{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0 %}money-positive{% else %}money-negative{% endif %}">
-                                ${{ "%.2f"|format(((monthly_income or 0) - (monthly_expenses or 0))|float) }}
-                            </h3>
-                            <small class="text-muted">{% if ((monthly_income or 0) - (monthly_expenses or 0)) >= 0
-                                %}Purr! 😻{% else %}Need treats! 🍪{% endif %}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+<style>
+    /* Hero Balance Card */
+    .hero-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-        <!-- Cute Spending Chart -->
-        <div class="card">
-            <div class="card-header">
-                <h5>🌸 Spending Rainbow 🌈</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-                <div class="text-center mt-3" id="chartMessage" style="display: none;">
-                    <small class="text-muted">Where did all my money go? 😅💸</small>
-                </div>
-            </div>
-        </div>
-    </div>
+    .hero-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        border-radius: 50%;
+    }
 
-    <div class="col-md-4">
-        <!-- Cute Recent Transactions -->
-        <div class="card">
-            <div class="card-header">
-                <h5>🎀 Recent Money Adventures</h5>
-            </div>
-            <div class="card-body">
-                {% if recent_transactions %}
-                {% for transaction in recent_transactions %}
-                <div class="transaction-item">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div style="flex: 1;">
-                            <div class="fw-bold" style="color: #666;">
-                                {% if transaction[6] == 'income' %}💰{% else %}🛍️{% endif %}
-                                {{ transaction[3][:25] }}{% if transaction[3]|length > 25 %}...{% endif %}
-                            </div>
-                            <small class="text-muted">
-                                📅 {{ transaction[2] }} • 🏷️ {{ transaction[5] }}
-                            </small>
-                        </div>
-                        <div class="text-end" style="min-width: 100px;">
-                            <div class="{{ 'money-positive' if transaction[6] == 'income' else 'money-negative' }}">
-                                {{ '+' if transaction[6] == 'income' else '-' }}${{ "%.2f"|format(transaction[4]|float)
-                                }}
-                            </div>
-                            <small>{{ '📈' if transaction[6] == 'income' else '📉' }}</small>
-                            <br>
-                            <button class="btn btn-outline-danger btn-sm mt-1 delete-btn" data-id="{{ transaction[0] }}"
-                                data-name="{{ transaction[3][:20] }}" style="font-size: 0.7rem; padding: 2px 6px;">
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% else %}
-                <div class="text-center p-4"
-                    style="background: linear-gradient(135deg, #fff0f5, rgba(255, 240, 245, 0.5)); border-radius: 15px;">
-                    <div style="font-size: 3rem;">😿</div>
-                    <p class="text-muted fw-bold">No money adventures yet!</p>
-                    <a href="/add_transaction" class="btn btn-primary">
-                        ✨ Start Your Journey!
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
 
-        <!-- Cute Action Buttons -->
-        <div class="card">
-            <div class="card-header">
-                <h5>🌟 Quick Actions</h5>
-            </div>
-            <div class="card-body text-center">
-                <div class="d-grid gap-2">
-                    <a href="/add_transaction" class="btn btn-primary">
-                        💫 Add Transaction
-                    </a>
-                    <div class="mt-3">
-                        <small class="text-muted">Made with 💕 and lots of ☕</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+    .hero-label {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
 
-        <!-- Income vs Savings Trends -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <h5>📈 Financial Trends</h5>
+    .hero-amount {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .hero-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 1rem;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Transactions */
+    .transactions-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .transaction-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .transaction-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(4px);
+    }
+
+    .transaction-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .category-food {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .category-transportation {
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196f3;
+    }
+
+    .category-shopping {
+        background: rgba(233, 30, 99, 0.1);
+        color: #e91e63;
+    }
+
+    .category-bills {
+        background: rgba(96, 125, 139, 0.1);
+        color: #607d8b;
+    }
+
+    .category-entertainment {
+        background: rgba(156, 39, 176, 0.1);
+        color: #9c27b0;
+    }
+
+    .category-healthcare {
+        background: rgba(244, 67, 54, 0.1);
+        color: #f44336;
+    }
+
+    .category-education {
+        background: rgba(0, 188, 212, 0.1);
+        color: #00bcd4;
+    }
+
+    .category-salary {
+        background: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
+
+    .category-investment {
+        background: rgba(255, 152, 0, 0.1);
+        color: #ff9800;
+    }
+
+    .category-savings {
+        background: rgba(0, 150, 136, 0.1);
+        color: #009688;
+    }
+
+    .category-other {
+        background: rgba(158, 158, 158, 0.1);
+        color: #9e9e9e;
+    }
+
+    .transaction-details {
+        flex: 1;
+    }
+
+    .transaction-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .transaction-meta {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .transaction-amount {
+        text-align: right;
+        min-width: 140px;
+    }
+
+    .amount-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .delete-btn {
+        background: rgba(255, 51, 102, 0.1);
+        border: 1px solid rgba(255, 51, 102, 0.3);
+        color: var(--accent-red);
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        margin-top: 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background: rgba(255, 51, 102, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .quick-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Hero Balance Card -->
+<div class="hero-card">
+    <div class="hero-content">
+        <div class="hero-label">Total Balance</div>
+        <div class="hero-amount">${{ "%.2f"|format(((monthly_income or 0) - (monthly_expenses or 0))|float) }}</div>
+        <div class="hero-stats">
+            <div class="hero-stat-item">
+                <span>↑</span>
+                <span>Income: ${{ "%.2f"|format((monthly_income or 0)|float) }}</span>
             </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 250px;">
-                    <canvas id="trendsChart"></canvas>
-                </div>
+            <div class="hero-stat-item">
+                <span>↓</span>
+                <span>Expenses: ${{ "%.2f"|format((monthly_expenses or 0)|float) }}</span>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    // Add event listeners for delete buttons
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const transactionId = this.getAttribute('data-id');
-                const transactionName = this.getAttribute('data-name');
+<!-- Quick Stats -->
+<div class="quick-stats">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(0, 255, 136, 0.1); color: var(--accent-green);">
+            <i class="ph-bold ph-arrow-up"></i>
+        </div>
+        <div class="stat-label">Income</div>
+        <div class="stat-value text-green">${{ "%.0f"|format((monthly_income or 0)|float) }}</div>
+    </div>
 
-                if (confirm(`Are you sure you want to delete "${transactionName}"? This action cannot be undone! 😿`)) {
-                    // Create a form and submit it
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(255, 51, 102, 0.1); color: var(--accent-red);">
+            <i class="ph-bold ph-arrow-down"></i>
+        </div>
+        <div class="stat-label">Expenses</div>
+        <div class="stat-value text-red">${{ "%.0f"|format((monthly_expenses or 0)|float) }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(77, 124, 254, 0.1); color: var(--accent-blue);">
+            <i class="ph-bold ph-receipt"></i>
+        </div>
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value">{{ recent_transactions|length }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(155, 89, 182, 0.1); color: #9b59b6;">
+            <i class="ph-bold ph-piggy-bank"></i>
+        </div>
+        <div class="stat-label">Savings Rate</div>
+        <div class="stat-value">
+            {% if monthly_income > 0 %}
+            {{ "%.0f"|format(((monthly_income - monthly_expenses) / monthly_income * 100)|float) }}%
+            {% else %}
+            0%
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <!-- Weekly Spending Chart -->
+    <div class="chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Weekly Spending Pattern</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="weeklyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Spending by Category</h3>
+        </div>
+        <div class="chart-container" style="height: 250px;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="transactions-card">
+    <div class="card-header">
+        <h3 class="card-title">Recent Transactions</h3>
+        <a href="/add_transaction" class="btn btn-primary">Add New</a>
+    </div>
+
+    <div class="transactions-list">
+        {% if recent_transactions %}
+        {% for transaction in recent_transactions %}
+        <div class="transaction-item">
+            <div style="display: flex; align-items: center; flex: 1;">
+                <div class="transaction-icon category-{{ transaction[5]|lower }}">
+                    {% if transaction[5] == 'Food' %}<i class="ph-bold ph-fork-knife"></i>
+                    {% elif transaction[5] == 'Transportation' %}<i class="ph-bold ph-car"></i>
+                    {% elif transaction[5] == 'Shopping' %}<i class="ph-bold ph-shopping-cart"></i>
+                    {% elif transaction[5] == 'Bills' %}<i class="ph-bold ph-file-text"></i>
+                    {% elif transaction[5] == 'Entertainment' %}<i class="ph-bold ph-game-controller"></i>
+                    {% elif transaction[5] == 'Healthcare' %}<i class="ph-bold ph-heartbeat"></i>
+                    {% elif transaction[5] == 'Education' %}<i class="ph-bold ph-graduation-cap"></i>
+                    {% elif transaction[5] == 'Salary' %}<i class="ph-bold ph-briefcase"></i>
+                    {% elif transaction[5] == 'Investment' %}<i class="ph-bold ph-chart-line"></i>
+                    {% elif transaction[5] == 'Savings' %}<i class="ph-bold ph-piggy-bank"></i>
+                    {% else %}<i class="ph-bold ph-circle-dashed"></i>
+                    {% endif %}
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-name">{{ transaction[3][:40] }}{% if transaction[3]|length > 40 %}...{%
+                        endif %}</div>
+                    <div class="transaction-meta">{{ transaction[2] }} • {{ transaction[5] }}</div>
+                </div>
+            </div>
+            <div class="transaction-amount">
+                <div class="amount-value {% if transaction[6] == 'income' %}text-green{% else %}text-red{% endif %}">
+                    {{ '+' if transaction[6] == 'income' else '-' }}${{ "%.2f"|format(transaction[4]|float) }}
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    <a href="/edit_transaction/{{ transaction[0] }}" class="btn" style="background: rgba(77, 124, 254, 0.1); border: 1px solid rgba(77, 124, 254, 0.3); color: var(--accent-blue); padding: 0.375rem 0.75rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
+                        Edit
+                    </a>
+                    <button class="delete-btn delete-transaction" data-id="{{ transaction[0] }}"
+                        data-name="{{ transaction[3][:20] }}">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="ph-bold ph-chart-bar" style="font-size: 3rem;"></i></div>
+            <p>No transactions yet</p>
+            <a href="/add_transaction" class="btn btn-primary" style="margin-top: 1rem;">Add First Transaction</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Delete transaction handler
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.delete-transaction').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+
+                if (confirm(`Delete "${name}"?`)) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/delete_transaction/${transactionId}`;
-
+                    form.action = `/delete_transaction/${id}`;
                     document.body.appendChild(form);
                     form.submit();
                 }
@@ -164,43 +445,96 @@
         });
     });
 
-    // Cute pastel colors for charts
-    const cuteColors = [
-        '#ff9dbf', '#d4a5ff', '#b3e5d1', '#ffccb3',
-        '#ffd1dc', '#e6ccff', '#ccf2e6', '#ffe6d9'
-    ];
+    // Chart colors
+    const chartColors = {
+        green: '#00ff88',
+        red: '#ff3366',
+        blue: '#4d7cfe',
+        purple: '#9b59b6',
+        orange: '#ff9500',
+        yellow: '#ffd60a'
+    };
 
+    // Fetch chart data
     fetch('/api/chart_data')
         .then(response => response.json())
         .then(data => {
-            console.log('Chart data received:', data);
+            // Weekly Spending Chart (Bar Chart)
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
 
-            const ctx = document.getElementById('categoryChart').getContext('2d');
+            // Generate weekly data (mock for now, you can enhance this)
+            const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const weeklyData = Array(7).fill(0).map(() => Math.random() * 500);
 
-            // Check if we have spending data
-            if (!data.category_data || Object.keys(data.category_data).length === 0) {
-                // Show "No data" message in chart area
-                ctx.font = '16px Nunito';
-                ctx.fillStyle = '#ff9dbf';
-                ctx.textAlign = 'center';
-                ctx.fillText('Add some expenses to see your spending rainbow! 🌈', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
-            }
+            new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: weekDays,
+                    datasets: [{
+                        label: 'Daily Spending',
+                        data: weeklyData,
+                        backgroundColor: chartColors.blue,
+                        borderRadius: 8,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1a1f3a',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b8c5d6',
+                            borderColor: '#2a3353',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function (context) {
+                                    return '$' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#6b7a99',
+                                callback: function (value) {
+                                    return '$' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#6b7a99' }
+                        }
+                    }
+                }
+            });
 
-            // Show the message when we have data
-            document.getElementById('chartMessage').style.display = 'block';
+            // Category Pie Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryColors = [
+                chartColors.green, chartColors.blue, chartColors.purple,
+                chartColors.orange, chartColors.red, chartColors.yellow
+            ];
 
-            new Chart(ctx, {
+            new Chart(categoryCtx, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(data.category_data),
                     datasets: [{
                         data: Object.values(data.category_data),
-                        backgroundColor: cuteColors,
-                        borderWidth: 3,
-                        borderColor: '#fff',
-                        hoverBorderWidth: 5,
-                        hoverBorderColor: '#ff9dbf'
+                        backgroundColor: categoryColors,
+                        borderWidth: 0,
+                        hoverOffset: 8
                     }]
                 },
                 options: {
@@ -210,95 +544,29 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                font: {
-                                    family: 'Nunito',
-                                    size: 12,
-                                    weight: '600'
-                                }
+                                color: '#b8c5d6',
+                                padding: 15,
+                                font: { size: 11, family: 'Inter' },
+                                usePointStyle: true
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(255, 157, 191, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            cornerRadius: 15,
-                            displayColors: true,
+                            backgroundColor: '#1a1f3a',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b8c5d6',
+                            borderColor: '#2a3353',
+                            borderWidth: 1,
+                            padding: 12,
                             callbacks: {
                                 label: function (context) {
-                                    return context.label + ': ' + context.parsed.toFixed(2);
+                                    return context.label + ': $' + context.parsed.toFixed(2);
                                 }
                             }
                         }
                     },
-                    cutout: '60%',
-                    animation: {
-                        animateRotate: true,
-                        duration: 2000
-                    }
+                    cutout: '70%'
                 }
             });
-
-            // Create trends chart
-            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-            
-            if (!data.monthly_trends || data.monthly_trends.length === 0) {
-                trendsCtx.font = '14px Nunito';
-                trendsCtx.fillStyle = '#ff9dbf';
-                trendsCtx.textAlign = 'center';
-                trendsCtx.fillText('Add transactions to see trends! 📊', trendsCtx.canvas.width / 2, trendsCtx.canvas.height / 2);
-                return;
-            }
-            
-            new Chart(trendsCtx, {
-                type: 'line',
-                data: {
-                    labels: data.monthly_trends.map(item => item[0]),
-                    datasets: [{
-                        label: 'Income',
-                        data: data.monthly_trends.map(item => item[1]),
-                        borderColor: '#1a5d1a',
-                        backgroundColor: 'rgba(26, 93, 26, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }, {
-                        label: 'Expenses',
-                        data: data.monthly_trends.map(item => item[2]),
-                        borderColor: '#b91c1c',
-                        backgroundColor: 'rgba(185, 28, 28, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toFixed(0);
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error loading chart data:', error);
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            ctx.font = '14px Nunito';
-            ctx.fillStyle = '#ff9dbf';
-            ctx.textAlign = 'center';
-            ctx.fillText('Chart loading error 😿', ctx.canvas.width / 2, ctx.canvas.height / 2);
         });
 </script>
 {% endblock %}

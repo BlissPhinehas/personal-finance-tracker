@@ -1,262 +1,217 @@
 {% extends "base.html" %}
 
-{% block title %}✨ Add Money Magic ✨{% endblock %}
+{% block title %}Add Transaction - FinanceFlow{% endblock %}
+{% block page_title %}Add Transaction{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header text-center">
-                <h5>💫 Add Your Money Adventure! 💫</h5>
-                <div style="font-size: 2rem; margin-top: 10px;">
-                    <span class="bounce">🌸</span>
-                    <span class="bounce" style="animation-delay: 0.2s;">💕</span>
-                    <span class="bounce" style="animation-delay: 0.4s;">🌸</span>
-                </div>
-            </div>
-            <div class="card-body" style="padding: 2rem;">
-                <form method="POST" id="transactionForm">
-                    <div class="mb-4">
-                        <label for="date" class="form-label fw-bold">📅 When did this happen?</label>
-                        <input type="date" class="form-control" id="date" name="date" required max="">
-                        <div class="form-text">Pick your special day! ✨</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="description" class="form-label fw-bold">📝 What was it for?</label>
-                        <input type="text" class="form-control" id="description" name="description"
-                            placeholder="Like... Starbucks coffee ☕ or cute dress 👗" required>
-                        <div class="form-text">Tell us your story! 💭</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="amount" class="form-label fw-bold">💰 How much money?</label>
-                        <div class="input-group">
-                            <span class="input-group-text"
-                                style="background: linear-gradient(45deg, #ff9dbf, #d4a5ff); color: white; border: none; font-weight: bold;">$</span>
-                            <input type="number" step="0.01" class="form-control" id="amount" name="amount"
-                                placeholder="0.00" required>
-                        </div>
-                        <div class="form-text">Every penny counts! 💸</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="type" class="form-label fw-bold">💫 Money in or out?</label>
-                        <select class="form-select" id="type" name="type" required onchange="updateEmoji()">
-                            <option value="">Choose your adventure...</option>
-                            <option value="expense">💸 Money Going Out (Expense)</option>
-                            <option value="income">💰 Money Coming In (Income)</option>
-                        </select>
-                        <div class="form-text">Are you spending or earning? 🤔</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="category" class="form-label fw-bold">🏷️ What category?</label>
-                        <select class="form-select" id="category" name="category" required>
-                            <option value="">Pick a cute category...</option>
-                            <option value="Food">🍕 Food & Drinks</option>
-                            <option value="Transportation">🚗 Getting Around</option>
-                            <option value="Shopping">🛍️ Shopping Spree</option>
-                            <option value="Bills">📋 Boring Bills</option>
-                            <option value="Entertainment">🎬 Fun Times</option>
-                            <option value="Healthcare">🏥 Health & Beauty</option>
-                            <option value="Education">📚 Education & Learning</option>
-                            <option value="Salary">💰 Salary & Wages</option>
-                            <option value="Investment">📈 Investments</option>
-                            <option value="Savings">🏦 Savings</option>
-                            <option value="Other">✨ Something Else</option>
-                        </select>
-                        <div class="form-text">Where does this fit? 🗂️</div>
-                    </div>
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary me-3"
-                            style="padding: 15px 40px; font-size: 1.1rem;">
-                            <span id="submitEmoji">✨</span> Add My Transaction!
-                        </button>
-                        <a href="/" class="btn btn-secondary" style="padding: 15px 30px;">
-                            🏠 Go Back Home
-                        </a>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <small class="text-muted">Made with 💕 by you!</small>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Recurring Transaction Options -->
-        <div class="mb-4">
-            <div class="form-check" style="background: rgba(255, 157, 191, 0.1); padding: 15px; border-radius: 15px;">
-                <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring"
-                    onchange="toggleRecurring()">
-                <label class="form-check-label fw-bold" for="is_recurring">
-                    🔄 Make this recurring?
-                </label>
-                <div class="form-text">For things like salary, rent, subscriptions! 💡</div>
-            </div>
-        </div>
-        
-        <div class="mb-4" id="recurring_options" style="display: none;">
-            <label for="recurring_frequency" class="form-label fw-bold">🗓️ How often?</label>
-            <select class="form-select" id="recurring_frequency" name="recurring_frequency">
-                <option value="">Choose frequency...</option>
-                <option value="weekly">📅 Weekly</option>
-                <option value="monthly">🗓️ Monthly</option>
-                <option value="quarterly">📆 Every 3 Months</option>
-                <option value="yearly">🎂 Yearly</option>
-            </select>
-            <div class="form-text">We'll remember this pattern! 🧠✨</div>
-        </div>
-
-        <!-- Cute motivational card -->
-        <div class="card mt-4">
-            <div class="card-body text-center"
-                style="background: linear-gradient(135deg, #fff0f5, rgba(255, 240, 245, 0.3));">
-                <div style="font-size: 1.5rem;">🌟</div>
-                <p class="mb-0 fw-bold" style="color: #ff9dbf;">
-                    Every transaction is a step towards your financial goals!
-                </p>
-                <small class="text-muted">You're doing amazing! Keep it up! 💪✨</small>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    /* Custom cute animations for this page */
-    @keyframes wiggle {
-
-        0%,
-        7% {
-            transform: rotateZ(0);
-        }
-
-        15% {
-            transform: rotateZ(-15deg);
-        }
-
-        20% {
-            transform: rotateZ(10deg);
-        }
-
-        25% {
-            transform: rotateZ(-10deg);
-        }
-
-        30% {
-            transform: rotateZ(6deg);
-        }
-
-        35% {
-            transform: rotateZ(-4deg);
-        }
-
-        40%,
-        100% {
-            transform: rotateZ(0);
-        }
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
     }
 
-    .form-control:focus,
-    .form-select:focus {
-        animation: wiggle 0.5s ease-in-out;
+    .form-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
     }
 
-    .input-group-text {
-        border-radius: 15px 0 0 15px !important;
+    .form-grid {
+        display: grid;
+        gap: 1.5rem;
     }
 
-    .form-control,
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input,
     .form-select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 1rem;
         transition: all 0.3s ease;
     }
 
-    .form-control:hover,
-    .form-select:hover {
-        transform: scale(1.02);
-        border-color: #ff9dbf;
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(77, 124, 254, 0.1);
     }
 
-    /* Floating hearts animation */
-    @keyframes float-heart {
-        0% {
-            transform: translateY(0px) rotate(0deg);
-            opacity: 1;
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-full {
+        flex: 1;
+    }
+
+    .recurring-section {
+        background: var(--bg-secondary);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
         }
 
-        100% {
-            transform: translateY(-100px) rotate(360deg);
-            opacity: 0;
+        .form-actions {
+            flex-direction: column;
         }
     }
 </style>
 
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+
+<div class="form-container">
+    <div class="form-card">
+        <form method="POST">
+            <div class="form-grid">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-input" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" step="0.01" class="form-input" id="amount" name="amount" placeholder="0.00"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <input type="text" class="form-input" id="description" name="description"
+                        placeholder="Enter transaction description" required>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="type" class="form-label">Type</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Select type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Food">Food & Drinks</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills & Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Investment">Investment</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="recurring-section">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" class="checkbox" id="is_recurring" name="is_recurring"
+                            onchange="toggleRecurring()">
+                        <label for="is_recurring" class="checkbox-label">Recurring Transaction</label>
+                    </div>
+
+                    <div class="form-group" id="recurring_options" style="display: none;">
+                        <label for="recurring_frequency" class="form-label">Frequency</label>
+                        <select class="form-select" id="recurring_frequency" name="recurring_frequency">
+                            <option value="">Select frequency</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-full">Add Transaction</button>
+                <a href="/" class="btn btn-secondary btn-full">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     // Set today's date as default
     document.getElementById('date').valueAsDate = new Date();
-
-    // Update emoji based on transaction type
-    function updateEmoji() {
-        const type = document.getElementById('type').value;
-        const submitEmoji = document.getElementById('submitEmoji');
-
-        if (type === 'income') {
-            submitEmoji.textContent = '💰';
-        } else if (type === 'expense') {
-            submitEmoji.textContent = '💸';
-        } else {
-            submitEmoji.textContent = '✨';
-        }
-    }
+    document.getElementById('date').setAttribute('max', new Date().toISOString().split('T')[0]);
 
     function toggleRecurring() {
-            const checkbox = document.getElementById('is_recurring');
-            const options = document.getElementById('recurring_options');
-            const frequency = document.getElementById('recurring_frequency');
+        const checkbox = document.getElementById('is_recurring');
+        const options = document.getElementById('recurring_options');
+        const frequency = document.getElementById('recurring_frequency');
 
-            if (checkbox.checked) {
-                options.style.display = 'block';
-                frequency.required = true;
-            } else {
-                options.style.display = 'none';
-                frequency.required = false;
-                frequency.value = '';
-            }
+        if (checkbox.checked) {
+            options.style.display = 'block';
+            frequency.required = true;
+        } else {
+            options.style.display = 'none';
+            frequency.required = false;
+            frequency.value = '';
         }
-
-    // Set today's date as default and max date
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('date').valueAsDate = new Date();
-        document.getElementById('date').setAttribute('max', today);
-        // Create floating hearts
-        for (let i = 0; i < 10; i++) {
-            setTimeout(() => {
-                const heart = document.createElement('div');
-                heart.innerHTML = Math.random() > 0.5 ? '💕' : '✨';
-                heart.style.position = 'fixed';
-                heart.style.left = Math.random() * window.innerWidth + 'px';
-                heart.style.top = window.innerHeight + 'px';
-                heart.style.fontSize = '1.5rem';
-                heart.style.pointerEvents = 'none';
-                heart.style.zIndex = '9999';
-                heart.style.animation = 'float-heart 3s ease-out forwards';
-                document.body.appendChild(heart);
-
-                setTimeout(() => heart.remove(), 3000);
-            }, i * 100);
-        }
-
-    // Add sparkle effect to form fields on focus
-    document.querySelectorAll('.form-control, .form-select').forEach(field => {
-        field.addEventListener('focus', function () {
-            this.style.boxShadow = '0 0 20px rgba(255, 157, 191, 0.3)';
-        });
-
-        field.addEventListener('blur', function () {
-            this.style.boxShadow = '';
-        });
-    });
+    }
 </script>
 {% endblock %}

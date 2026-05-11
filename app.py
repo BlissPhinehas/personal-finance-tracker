@@ -228,7 +228,7 @@ def register():
         session['username'] = username
         
         conn.close()
-        flash(f'Welcome to Kawaii Finance, {username}! ✨', 'success')
+        flash(f'Welcome to FinanceFlow, {username}!', 'success')
         return redirect(url_for('dashboard'))
     
     return render_template('register.html')
@@ -412,6 +412,52 @@ def delete_transaction(transaction_id):
     
     conn.close()
     return redirect(url_for('dashboard'))
+
+@app.route('/edit_transaction/<int:transaction_id>', methods=['GET', 'POST'])
+@login_required
+def edit_transaction(transaction_id):
+    """Edit a transaction."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if request.method == 'POST':
+        date = request.form['date']
+        description = request.form['description']
+        amount = float(request.form['amount'])
+        category = request.form['category']
+        transaction_type = request.form['type']
+        is_recurring = 'is_recurring' in request.form
+        recurring_frequency = request.form.get('recurring_frequency', '') if is_recurring else ''
+        
+        # Update transaction
+        cursor.execute('''UPDATE transactions 
+                         SET date = %s, description = %s, amount = %s, category = %s, 
+                             type = %s, is_recurring = %s, recurring_frequency = %s
+                         WHERE id = %s AND user_id = %s''' if USE_POSTGRES else
+                      '''UPDATE transactions 
+                         SET date = ?, description = ?, amount = ?, category = ?, 
+                             type = ?, is_recurring = ?, recurring_frequency = ?
+                         WHERE id = ? AND user_id = ?''',
+                      (date, description, amount, category, transaction_type, 
+                       is_recurring, recurring_frequency, transaction_id, session['user_id']))
+        conn.commit()
+        conn.close()
+        
+        flash('Transaction updated successfully!', 'success')
+        return redirect(url_for('dashboard'))
+    
+    # GET request - load transaction data
+    cursor.execute('SELECT * FROM transactions WHERE id = %s AND user_id = %s' if USE_POSTGRES else
+                  'SELECT * FROM transactions WHERE id = ? AND user_id = ?',
+                  (transaction_id, session['user_id']))
+    transaction = cursor.fetchone()
+    conn.close()
+    
+    if not transaction:
+        flash('Transaction not found!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('edit_transaction.html', transaction=transaction)
 
 if __name__ == '__main__':
     init_db()
