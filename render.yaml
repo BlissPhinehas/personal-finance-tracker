@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: kawaii-finance-tracker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finance_db
+          property: connectionString
+
+databases:
+  - name: finance_db
+    databaseName: finance_tracker
+    user: finance_user
