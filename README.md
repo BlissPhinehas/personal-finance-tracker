@@ -2,7 +2,7 @@
 
 # 🌸 Personal Finance Tracker 💕
 
-**Live Demo:** [Kawaii Finance Tracker](https://web-production-892b.up.railway.app/)
+**Live Demo:** [Kawaii Finance Tracker](https://BlissPhinehas.pythonanywhere.com)
 
 A cute and interactive web app for tracking expenses, budgets, and savings goals. It features user authentication, automated categorization, and beautiful visualizations — all wrapped in a fun pastel design.
 
